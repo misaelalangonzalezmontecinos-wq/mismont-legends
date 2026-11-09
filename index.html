@@ -1,1 +1,125 @@
-Commit changes
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MISMont LEGENDS</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090b13;color:white;font-family:Arial;text-align:center}
+header{padding:15px;background:#171321;color:#f4c75e;font-size:25px;font-weight:bold}
+.info{display:flex;justify-content:space-around;padding:10px;background:#171b29}
+.arena{max-width:650px;margin:12px auto;padding:10px}
+.side{border:2px solid #66512c;border-radius:12px;padding:10px;margin:8px 0;background:#151927}
+h3{margin:4px;color:#f4c75e}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.slot{min-height:75px;border:1px dashed #777;border-radius:8px;background:#202638;padding:8px;font-size:12px}
+.river{padding:12px;color:#65caff;font-weight:bold}
+.hand{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px auto}
+.card{background:linear-gradient(145deg,#30213f,#111827);border:1px solid #d6a847;border-radius:9px;padding:10px;font-size:12px;cursor:pointer}
+.card.selected{outline:3px solid #55d9ff}
+button{background:#bd8730;color:#111;border:0;padding:12px 18px;border-radius:8px;font-weight:bold;margin:5px}
+#message{min-height:28px;color:#70d9ff;padding:8px}
+</style>
+</head>
+<body>
+<header>MISMont LEGENDS</header>
+
+<div class="info">
+  <div>Jugador 1: <span id="hp1">100</span> ❤️</div>
+  <div>Turno: <span id="turn">1</span></div>
+  <div>Jugador 2: <span id="hp2">100</span> ❤️</div>
+</div>
+
+<main class="arena">
+  <section class="side">
+    <h3>JUGADOR 2</h3>
+    <div class="slots" id="enemy">
+      <div class="slot">Guerrero</div>
+      <div class="slot">Guerrero</div>
+      <div class="slot">Estructura</div>
+      <div class="slot">Guerrero</div>
+      <div class="slot">Guerrero</div>
+      <div class="slot">Estructura</div>
+    </div>
+  </section>
+
+  <div class="river">〰️ RÍO DE BATALLA 〰️</div>
+
+  <section class="side">
+    <h3>JUGADOR 1</h3>
+    <div class="slots" id="player">
+      <div class="slot">Guerrero</div>
+      <div class="slot">Guerrero</div>
+      <div class="slot">Estructura</div>
+      <div class="slot">Guerrero</div>
+      <div class="slot">Guerrero</div>
+      <div class="slot">Estructura</div>
+    </div>
+  </section>
+
+  <h3>TUS CARTAS</h3>
+  <div id="hand" class="hand"></div>
+  <div id="message">Selecciona una carta para jugar.</div>
+  <button onclick="endTurn()">Terminar turno</button>
+  <button onclick="location.reload()">Reiniciar</button>
+</main>
+
+<script>
+const cards=[
+ {name:"Lobo Sanguinario",type:"Guerrero",hp:70,atk:25},
+ {name:"Dragón Celestial",type:"Guerrero",hp:100,atk:40},
+ {name:"Coloso de Piedra",type:"Guerrero",hp:120,atk:20},
+ {name:"Torre del Caos",type:"Estructura",hp:100,atk:10},
+ {name:"Fuente Vital",type:"Estructura",hp:80,atk:0},
+ {name:"Bestia Abismal",type:"Guerrero",hp:90,atk:35}
+];
+let selected=null,turn=1,energy=10;
+const hand=document.getElementById("hand");
+const message=document.getElementById("message");
+
+function draw(){
+ hand.innerHTML="";
+ cards.forEach((c,i)=>{
+  const el=document.createElement("div");
+  el.className="card"+(selected===i?" selected":"");
+  el.innerHTML=`<b>${c.name}</b><br>${c.type}<br>❤️ ${c.hp}<br>⚔️ ${c.atk}`;
+  el.onclick=()=>{selected=i;draw();message.textContent="Carta seleccionada: "+c.name+". Toca un espacio libre.";};
+  hand.appendChild(el);
+ });
+}
+function place(slot){
+ if(selected===null){message.textContent="Primero selecciona una carta.";return;}
+ const c=cards[selected];
+ if((c.type==="Estructura" && !slot.textContent.includes("Estructura")) ||
+    (c.type==="Guerrero" && !slot.textContent.includes("Guerrero"))){
+   message.textContent="Esa carta no corresponde a este espacio.";
+   return;
+ }
+ if(slot.dataset.used==="yes"){message.textContent="Ese espacio ya está ocupado.";return;}
+ slot.dataset.used="yes";
+ slot.innerHTML=`<b>${c.name}</b><br>❤️ ${c.hp}<br>⚔️ ${c.atk}`;
+ slot.style.border="1px solid #e5b84c";
+ selected=null;
+ draw();
+ message.textContent=c.name+" entró al campo de batalla.";
+}
+document.querySelectorAll("#player .slot").forEach(place);
+
+function endTurn(){
+ if(turn===1){
+  turn=2;
+  message.textContent="Turno del Jugador 2. El enemigo ataca.";
+  document.getElementById("hp1").textContent=Math.max(0,Number(document.getElementById("hp1").textContent)-10);
+ }else{
+  turn=1;
+  message.textContent="Tu turno. ¡Prepara tu estrategia!";
+ }
+ document.getElementById("turn").textContent=turn;
+}
+draw();
+</script>
+</body>
+  </html>
+
